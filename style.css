@@ -1,0 +1,141 @@
+/* ============================================================
+   青森・秋田 로드트립 — 공용 스타일 (index.html / admin.html 공용)
+   ============================================================ */
+:root{
+  --paper:#EFE9DC;
+  --paper-deep:#E6DFCE;
+  --ink:#242B22;
+  --ink-soft:#5b5646;
+  --indigo:#2C4A6E;
+  --indigo-soft:#e4ebf1;
+  --vermillion:#a8432e;
+  --vermillion-soft:#f5e4e0;
+  --gold:#b3872f;
+  --gold-soft:#f4ecda;
+  --teal:#2f6b5e;
+  --teal-soft:#e3ede9;
+  --line:#d9cfb8;
+  --card-bg:#fbf8f1;
+  --shadow: 0 1px 0 rgba(36,43,34,0.05), 0 6px 16px -8px rgba(36,43,34,0.25);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(circle at 100% 0%, rgba(44,74,110,0.04), transparent 40%),
+    var(--paper);
+  color:var(--ink);
+  font-family:'Pretendard','Noto Sans KR',-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:64px;
+}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ===== Header ===== */
+header{
+  position:sticky; top:0; z-index:50;
+  background:linear-gradient(180deg, var(--paper) 82%, rgba(239,233,220,0));
+  padding:14px 16px 10px;
+  backdrop-filter: blur(2px);
+}
+.brand{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:10px; }
+.brand h1{
+  font-family:'Pretendard',sans-serif; font-weight:800; font-size:20px;
+  margin:0; letter-spacing:-0.3px; color:var(--ink);
+}
+.brand .sub{ font-size:11px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; white-space:nowrap; }
+.daynav{ display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.daynav::-webkit-scrollbar{display:none;}
+.daychip{
+  flex:0 0 auto; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+  padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card-bg);
+  color:var(--ink-soft); white-space:nowrap; cursor:pointer;
+}
+.daychip.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+/* ===== Summary bar ===== */
+.summarybar{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:8px; padding:9px 12px; border-radius:10px; background:var(--ink); color:var(--paper);
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+}
+.summarybar .lbl{ opacity:0.65; font-size:9.5px; text-transform:uppercase; letter-spacing:0.4px; }
+.summarybar .val{ font-weight:700; font-size:13.5px; }
+.summarybar .val.over{ color:#e08a6b; }
+.summarybar .lbl.over{ color:#e08a6b; opacity:0.9; }
+.summarybar .divider{ opacity:0.3; padding:0 4px; }
+
+/* ===== Day stamp ===== */
+.daymarker{ display:flex; align-items:center; gap:12px; margin:26px 16px 14px; }
+.stamp{
+  width:56px; height:56px; border-radius:50%; border:2.5px solid var(--vermillion); color:var(--vermillion);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(-6deg); font-family:'IBM Plex Mono',monospace; line-height:1; flex:0 0 auto; position:relative;
+}
+.stamp::after{ content:""; position:absolute; inset:5px; border:1px dashed var(--vermillion); border-radius:50%; opacity:0.5; }
+.stamp .num{font-size:15px; font-weight:700;}
+.stamp .dow{font-size:9px; margin-top:1px;}
+.daymarker .theme{ font-family:'Pretendard',sans-serif; font-weight:700; font-size:17.5px; color:var(--ink); letter-spacing:-0.2px; }
+.daymarker .theme small{ display:block; font-family:'Pretendard',sans-serif; font-weight:500; font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+
+/* ===== Cards ===== */
+.cards{ padding:0 16px; display:flex; flex-direction:column; gap:12px; }
+.card{
+  background:var(--card-bg); border:1px solid var(--line); border-radius:14px;
+  box-shadow:var(--shadow); overflow:hidden; position:relative;
+}
+.card.transit{ background:transparent; box-shadow:none; border:none; padding:2px 4px 2px 26px; position:relative; }
+.card.transit::before{
+  content:""; position:absolute; left:9px; top:0; bottom:0; width:1px;
+  background:repeating-linear-gradient(to bottom, var(--line) 0 4px, transparent 4px 8px);
+}
+.card.transit::after{ content:"→"; position:absolute; left:3px; top:50%; transform:translateY(-50%); color:var(--ink-soft); font-size:11px; }
+.card.transit .transit-row{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-soft); padding:8px 0; }
+.card.transit .t-time{font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--indigo);}
+.card.transit .t-note{font-size:10.5px; color:#8a8270; margin-left:auto; text-align:right;}
+
+.card-top{ padding:13px 14px 12px; }
+.row1{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.cat{ font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px; letter-spacing:0.3px; }
+.cat.식사{ background:var(--vermillion-soft); color:var(--vermillion); }
+.cat.숙소{ background:var(--teal-soft); color:var(--teal); }
+.cat.관광{ background:var(--gold-soft); color:var(--gold); }
+.cat.렌트카, .cat.교통{ background:var(--indigo-soft); color:var(--indigo); }
+.cat.기타{ background:#ece7de; color:#7a7259; }
+
+.time-badge{ font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+.status{ margin-left:auto; font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:999px; font-family:'IBM Plex Mono',monospace; }
+.status.confirmed{ background:var(--teal); color:#fff; }
+.status.pending{ background:transparent; color:var(--gold); border:1px solid var(--gold); }
+
+.title{ font-family:'Pretendard',sans-serif; font-weight:700; font-size:17px; margin:0 0 2px; color:var(--ink); letter-spacing:-0.2px; }
+.place{ font-size:12.5px; color:var(--ink-soft); margin-bottom:2px; }
+
+.photo-wrap{
+  margin:0 14px 10px; border-radius:10px; overflow:hidden; border:1px dashed var(--line);
+  background:var(--paper-deep); min-height:64px; display:flex; align-items:center; justify-content:center;
+}
+.photo-wrap img{ width:100%; display:block; max-height:240px; object-fit:cover; }
+.photo-placeholder{ display:flex; flex-direction:column; align-items:center; gap:4px; color:#a89f89; font-size:10.5px; padding:14px; }
+.photo-placeholder .emoji{ font-size:22px; }
+
+.field-grid{ padding:0 14px 12px; display:flex; flex-direction:column; gap:8px; }
+.field{ display:flex; flex-direction:column; gap:3px; }
+.field label{ font-size:10px; font-weight:700; color:#948a70; letter-spacing:0.4px; text-transform:uppercase; }
+.field .value{ font-size:14px; color:var(--ink); line-height:1.5; }
+.field .value.mono{ font-family:'IBM Plex Mono',monospace; }
+.field .value.empty{ color:#c2b9a3; font-style:italic; }
+.field.price .value, .field.phone .value{ font-family:'IBM Plex Mono',monospace; }
+
+.perf{ margin:12px 0 10px; border:none; border-top:1.5px dashed var(--line); position:relative; }
+
+.actions{ display:flex; gap:8px; padding:12px 14px 14px; }
+.btn{
+  flex:1; text-align:center; font-size:12.5px; font-weight:600; padding:9px 10px; border-radius:9px;
+  text-decoration:none; border:1px solid var(--line); color:var(--ink); background:var(--paper);
+  display:flex; align-items:center; justify-content:center; gap:5px; cursor:pointer;
+}
+.btn.maps{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
+.btn:active{ transform:scale(0.97); }
+
+footer{ margin:34px 16px 10px; text-align:center; font-size:10.5px; color:#a89f89; font-family:'IBM Plex Mono',monospace; line-height:1.7; }

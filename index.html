@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아오모리·아키타 로드트립</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" />
+<link rel="stylesheet" href="style.css">
+<style>
+  .ledger-wrap{ padding:0 16px 40px; }
+  .ledger-card{ background:var(--card-bg); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:16px 14px; }
+  .ledger-total{ display:flex; justify-content:space-between; align-items:baseline; padding-bottom:12px; margin-bottom:12px; border-bottom:1.5px dashed var(--line); }
+  .ledger-total .lbl{ font-family:'Pretendard',sans-serif; font-weight:700; font-size:15px; }
+  .ledger-total .amt{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:19px; color:var(--vermillion); }
+  .ledger-item{ display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .ledger-item:last-child{ border-bottom:none; }
+  .ledger-item .li-name{ flex:1; color:var(--ink); }
+  .ledger-item .li-amt{ font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--ink); }
+  .ledger-empty{ text-align:center; color:#a89f89; font-size:12px; padding:14px 0; }
+  .loadingmsg, .errormsg{ text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:13px; line-height:1.7; }
+  .errormsg{ color:var(--vermillion); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>青森・秋田 <span style="font-weight:500; font-size:13px;">로드트립</span></h1>
+    <div class="sub">8.21 FRI → 8.26 WED</div>
+  </div>
+  <div class="daynav" id="daynav"></div>
+  <div class="summarybar">
+    <div><span class="lbl">실제 사용(2인, 엔화)</span><br><span class="val mono" id="actualTotal">¥0</span><span class="lbl" style="display:block; margin-top:1px;" id="actualTotalKrw">≈ ₩0</span></div>
+    <div class="divider">/</div>
+    <div style="text-align:right;"><span class="lbl">예산(2인)</span><br><span class="val mono" id="budgetDisplay">₩0</span></div>
+  </div>
+</header>
+
+<main id="main"><div class="loadingmsg">불러오는 중...</div></main>
+
+<footer>
+  이 페이지는 읽기 전용입니다. 내용 수정은 관리자 페이지에서 해주세요.
+</footer>
+
+<script>
+const CAT_ICON = {식사:"🍴", 숙소:"🏨", 관광:"🎫", 렌트카:"🚗", 기타:"🧾"};
+const JPY_TO_KRW = 8.9;
+
+function mapsUrl(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q || ""); }
+function won(n){ return "₩" + Math.round(n).toLocaleString("ko-KR"); }
+function yen(n){ return "¥" + Math.round(n).toLocaleString("ko-KR"); }
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function fieldRow(label, value, mono){
+  if(!value) return "";
+  return `<div class="field"><label>${label}</label><div class="value${mono?" mono":""}">${escapeHtml(value)}</div></div>`;
+}
+
+function buildCard(item){
+  if(item.type === "transit"){
+    return `
+    <div class="card transit">
+      <div class="transit-row">
+        <span class="t-time">${escapeHtml(item.time)}</span>
+        <span>${escapeHtml(item.title)}</span>
+        <span class="t-note">${escapeHtml(item.note||"")}</span>
+      </div>
+    </div>`;
+  }
+  const statusHtml = item.status ? `<span class="status ${item.status}">${item.status==="confirmed"?"확정":"미정"}</span>` : "";
+  const mapsBtn = item.mapsQ ? `<a class="btn maps" href="${mapsUrl(item.mapsQ)}" target="_blank" rel="noopener">📍 지도</a>` : "";
+  const telBtn = item.phone ? `<a class="btn tel" href="tel:${escapeHtml(item.phone).replace(/[^0-9+]/g,'')}">☎ 전화</a>` : "";
+  const photoHtml = item.imgPath
+    ? `<img src="${escapeHtml(item.imgPath)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+       <div class="photo-placeholder" style="display:none;"><span class="emoji">🖼</span><span>이미지를 불러올 수 없어요</span></div>`
+    : `<div class="photo-placeholder"><span class="emoji">${CAT_ICON[item.cat]||"📷"}</span><span>사진 없음</span></div>`;
+
+  const menuField = (item.cat === "식사") ? fieldRow("추천메뉴 / 특징", item.menu) : "";
+
+  return `
+  <div class="card">
+    <div class="card-top">
+      <div class="row1">
+        <span class="cat ${item.cat}">${CAT_ICON[item.cat]||""} ${item.cat}</span>
+        <span class="time-badge">${escapeHtml(item.time)}</span>
+        ${statusHtml}
+      </div>
+      <div class="title">${escapeHtml(item.title)}</div>
+      ${item.place ? `<div class="place">${escapeHtml(item.place)}</div>` : ""}
+    </div>
+    <div class="photo-wrap">${photoHtml}</div>
+    <div class="field-grid">
+      ${fieldRow("예산", item.price, true)}
+      ${fieldRow("실제 사용액 (2인, 엔화)", item.actual ? yen(item.actual) : "", true)}
+      ${menuField}
+      ${fieldRow("전화번호", item.phone, true)}
+      <hr class="perf">
+      ${fieldRow("메모", item.note)}
+    </div>
+    ${(mapsBtn || telBtn) ? `<div class="actions">${mapsBtn}${telBtn}</div>` : ""}
+  </div>`;
+}
+
+let DATA = null;
+
+function computeSummary(){
+  let sum = 0;
+  DATA.days.forEach(day => day.items.forEach(item => {
+    const v = parseFloat(item.actual);
+    if(!isNaN(v)) sum += v;
+  }));
+  (DATA.ledger||[]).forEach(e => { const v = Number(e.amount); if(!isNaN(v)) sum += v; });
+  const krw = sum * JPY_TO_KRW;
+  document.getElementById("actualTotal").textContent = yen(sum);
+  const krwEl = document.getElementById("actualTotalKrw");
+  krwEl.textContent = "≈ " + won(krw);
+  const over = krw > (DATA.budgetTotal||0);
+  document.getElementById("actualTotal").classList.toggle("over", over);
+  krwEl.classList.toggle("over", over);
+  document.getElementById("budgetDisplay").textContent = won(DATA.budgetTotal||0);
+}
+
+function renderLedgerSection(){
+  const total = (DATA.ledger||[]).reduce((s,e)=>s+(Number(e.amount)||0),0);
+  const items = (DATA.ledger||[]).length
+    ? DATA.ledger.map(e => `<div class="ledger-item"><span class="li-name">${escapeHtml(e.name)}</span><span class="li-amt">${yen(e.amount)}</span></div>`).join("")
+    : `<div class="ledger-empty">기록된 지출이 없어요.</div>`;
+  return `
+  <section>
+    <div class="daymarker">
+      <div class="stamp" style="border-color:var(--vermillion); color:var(--vermillion);"><span class="num" style="font-size:20px;">💰</span></div>
+      <div class="theme">간이 가계부<small>계획에 없던 지출 기록</small></div>
+    </div>
+    <div class="ledger-wrap">
+      <div class="ledger-card">
+        <div class="ledger-total"><span class="lbl">가계부 합계 (엔화)</span><span class="amt mono">${yen(total)}</span></div>
+        ${items}
+      </div>
+    </div>
+  </section>`;
+}
+
+function render(){
+  const main = document.getElementById("main");
+  const nav = document.getElementById("daynav");
+  main.innerHTML = "";
+  nav.innerHTML = "";
+
+  DATA.days.forEach((day, i) => {
+    const chip = document.createElement("div");
+    chip.className = "daychip" + (i===0?" active":"");
+    chip.textContent = day.d + " " + day.w;
+    chip.onclick = () => document.getElementById("day-"+i).scrollIntoView({behavior:"smooth", block:"start"});
+    nav.appendChild(chip);
+
+    const section = document.createElement("section");
+    section.id = "day-"+i;
+    section.innerHTML = `
+      <div class="daymarker">
+        <div class="stamp"><span class="num">${day.d}</span><span class="dow">${day.w}요일</span></div>
+        <div class="theme">${escapeHtml(day.theme)}<small>${escapeHtml(day.sub)}</small></div>
+      </div>
+      <div class="cards">${day.items.map(buildCard).join("")}</div>
+    `;
+    main.appendChild(section);
+  });
+
+  const ledgerChip = document.createElement("div");
+  ledgerChip.className = "daychip";
+  ledgerChip.style.borderColor = "var(--vermillion)";
+  ledgerChip.style.color = "var(--vermillion)";
+  ledgerChip.textContent = "💰 가계부";
+  ledgerChip.onclick = () => document.getElementById("ledger-section").scrollIntoView({behavior:"smooth", block:"start"});
+  nav.appendChild(ledgerChip);
+
+  const ledgerHolder = document.createElement("div");
+  ledgerHolder.id = "ledger-section";
+  ledgerHolder.innerHTML = renderLedgerSection();
+  main.appendChild(ledgerHolder);
+
+  computeSummary();
+
+  window.addEventListener("scroll", () => {
+    const chips = document.querySelectorAll(".daychip");
+    const sections = Array.from(document.querySelectorAll("section[id^='day-']"));
+    let activeIdx = 0;
+    sections.forEach((sec, i) => { if(sec.getBoundingClientRect().top - 140 <= 0) activeIdx = i; });
+    chips.forEach((c,i)=> c.classList.toggle("active", i===activeIdx));
+  }, {passive:true});
+}
+
+async function init(){
+  try{
+    const res = await fetch("./data.json", {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    DATA = await res.json();
+    render();
+  }catch(e){
+    console.error(e);
+    document.getElementById("main").innerHTML = `
+      <div class="errormsg">
+        일정 데이터를 불러오지 못했어요.<br><br>
+        이 페이지는 실제 웹 주소(https://...github.io/...)로 열어야 정상 작동해요.<br>
+        파일을 더블클릭해서 여는 경우(file://)엔 데이터를 불러올 수 없어요.
+      </div>`;
+  }
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 — 아오모리·아키타 로드트립</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" />
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ===== 로그인 화면 ===== */
+  #loginScreen{
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; padding:20px;
+  }
+  #loginScreen h2{ font-size:18px; margin:0 0 4px; }
+  #loginScreen p{ font-size:12.5px; color:var(--ink-soft); margin:0 0 10px; text-align:center; }
+  #loginScreen input{
+    font-family:'IBM Plex Mono',monospace; font-size:16px; text-align:center; letter-spacing:4px;
+    border:1.5px solid var(--line); border-radius:10px; padding:12px 16px; width:200px; background:#fff;
+  }
+  #loginScreen button{
+    background:var(--vermillion); color:#fff; border:none; border-radius:10px; padding:12px 24px;
+    font-weight:700; font-size:14px; cursor:pointer; width:200px;
+  }
+  #loginError{ color:var(--vermillion); font-size:12px; height:16px; }
+  #adminApp{ display:none; }
+
+  /* ===== 툴바 ===== */
+  .toolbar{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .toolbtn{
+    font-family:'Pretendard',sans-serif; font-size:11.5px; font-weight:600; border:1px solid var(--line);
+    border-radius:8px; padding:7px 11px; background:var(--card-bg); color:var(--ink); cursor:pointer; white-space:nowrap;
+  }
+  .toolbtn.primary{ background:var(--indigo); color:#fff; border-color:var(--indigo); }
+  .toolbtn.danger{ color:var(--vermillion); }
+  .filelabel{ display:inline-block; }
+  .filelabel input[type=file]{ display:none; }
+  .savedtoast{
+    position:fixed; bottom:16px; left:50%; transform:translateX(-50%) translateY(120%);
+    background:var(--ink); color:var(--paper); font-size:11.5px; font-family:'IBM Plex Mono',monospace;
+    padding:8px 16px; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    transition:transform 0.25s ease; z-index:100;
+  }
+  .savedtoast.show{ transform:translateX(-50%) translateY(0); }
+
+  /* ===== 편집 필드 ===== */
+  .field input, .field textarea{
+    font-family:'Pretendard',sans-serif; font-size:14px; color:var(--ink);
+    border:none; border-bottom:1.5px dashed var(--indigo); background:transparent;
+    padding:5px 2px; resize:none; outline:none; width:100%;
+  }
+  .field input:focus, .field textarea:focus{ border-bottom-style:solid; }
+  .field textarea{ min-height:34px; line-height:1.4; }
+  .field.mono input{ font-family:'IBM Plex Mono',monospace; }
+  .title-input{
+    font-family:'Pretendard',sans-serif; font-weight:700; font-size:17px; color:var(--ink);
+    border:none; border-bottom:1.5px dashed var(--indigo); background:transparent; width:100%; padding:3px 0;
+    margin-bottom:2px;
+  }
+  .place-input{
+    font-size:12.5px; color:var(--ink-soft); border:none; border-bottom:1px dashed var(--line);
+    background:transparent; width:100%; padding:2px 0; margin-bottom:4px;
+  }
+  .time-input{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--indigo); font-weight:600;
+    border:none; border-bottom:1px dashed var(--indigo); background:transparent; width:74px; padding:0;
+  }
+  .status-select{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; margin-left:auto;
+    border:1px solid var(--line); border-radius:999px; padding:3px 8px; background:#fff;
+  }
+
+  .imgpath-row{ display:flex; gap:6px; align-items:center; }
+  .imgpath-row input{ flex:1; }
+  .suggest-btn{ flex:0 0 auto; font-size:10.5px; padding:6px 8px; border-radius:7px; border:1px solid var(--line); background:var(--card-bg); cursor:pointer; }
+  .photo-note{ font-size:10.5px; color:#a89f89; margin-top:2px; line-height:1.5; }
+  .photo-local-preview{ margin-top:6px; }
+  .photo-local-preview input[type=file]{ font-size:11px; }
+
+  .ledger-editor{ padding:0 16px 40px; }
+  .ledger-card{ background:var(--card-bg); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:16px 14px; }
+  .ledger-total{ display:flex; justify-content:space-between; align-items:baseline; padding-bottom:12px; margin-bottom:12px; border-bottom:1.5px dashed var(--line); }
+  .ledger-total .lbl{ font-weight:700; font-size:15px; }
+  .ledger-total .amt{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:19px; color:var(--vermillion); }
+  .ledger-add{ display:flex; gap:6px; margin-bottom:12px; }
+  .ledger-add input{ font-size:13px; border:1px solid var(--line); border-radius:8px; padding:8px 9px; outline:none; background:#fff; }
+  .ledger-add input.li-name{ flex:1.4; min-width:0; }
+  .ledger-add input.li-amt{ flex:1; min-width:0; font-family:'IBM Plex Mono',monospace; }
+  .ledger-add button{ flex:0 0 auto; background:var(--vermillion); color:#fff; border:none; border-radius:8px; padding:0 14px; font-weight:700; font-size:13px; cursor:pointer; }
+  .ledger-item{ display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .ledger-item:last-child{ border-bottom:none; }
+  .ledger-item .li-name{ flex:1; }
+  .ledger-item .li-amt{ font-family:'IBM Plex Mono',monospace; font-weight:600; }
+  .ledger-item .li-del{ background:none; border:none; color:#b8ac8f; font-size:16px; cursor:pointer; }
+  .ledger-empty{ text-align:center; color:#a89f89; font-size:12px; padding:14px 0; }
+
+  .newcard-btn{ margin:0 16px 20px; }
+  .budgetfield{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--paper); }
+  .budgetfield input{ width:110px; font-family:'IBM Plex Mono',monospace; font-size:12px; border:none; border-radius:6px; padding:4px 6px; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <h2>🔒 관리자 모드</h2>
+  <p>비밀번호를 입력하면 일정 내용을 수정할 수 있어요.<br>(뷰 페이지는 누구나 볼 수 있어요)</p>
+  <input type="password" id="pwInput" inputmode="numeric" placeholder="••••" maxlength="10">
+  <div id="loginError"></div>
+  <button id="loginBtn">입장</button>
+</div>
+
+<div id="adminApp">
+<header>
+  <div class="brand">
+    <h1>🔧 관리자 <span style="font-weight:500; font-size:13px;">청소·아키타 로드트립</span></h1>
+    <div class="sub">편집 후 반드시 다운로드→깃허브 업로드</div>
+  </div>
+  <div class="daynav" id="daynav"></div>
+  <div class="toolbar">
+    <label class="filelabel toolbtn">📂 data.json 불러오기<input type="file" accept="application/json" id="loadFileInput"></label>
+    <button class="toolbtn" id="refetchBtn">🔄 서버에서 다시 불러오기</button>
+    <button class="toolbtn primary" id="exportBtn">💾 data.json 다운로드</button>
+  </div>
+  <div class="summarybar" style="margin-top:10px;">
+    <div><span class="lbl">실제 사용(2인, 엔화)</span><br><span class="val mono" id="actualTotal">¥0</span></div>
+    <div class="divider">/</div>
+    <div class="budgetfield">예산(원)<input type="number" id="budgetInput" value="3272055"></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+</div>
+
+<div class="savedtoast" id="savedtoast">✓ 반영됨 (다운로드 후 깃허브 업로드 필요)</div>
+
+<script>
+const CAT_ICON = {식사:"🍴", 숙소:"🏨", 관광:"🎫", 렌트카:"🚗", 기타:"🧾"};
+const JPY_TO_KRW = 8.9;
+let DATA = null;
+
+function mapsUrl(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q || ""); }
+function won(n){ return "₩" + Math.round(n).toLocaleString("ko-KR"); }
+function yen(n){ return "¥" + Math.round(n).toLocaleString("ko-KR"); }
+
+/* ============================================================
+   🔒 로그인
+   ============================================================ */
+const ADMIN_PASSWORD = "0918";
+function attemptLogin(){
+  const pw = document.getElementById("pwInput").value;
+  if(pw === ADMIN_PASSWORD){
+    sessionStorage.setItem("adminUnlocked","1");
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminApp").style.display = "block";
+    boot();
+  } else {
+    document.getElementById("loginError").textContent = "비밀번호가 틀렸어요";
+  }
+}
+document.getElementById("loginBtn").addEventListener("click", attemptLogin);
+document.getElementById("pwInput").addEventListener("keydown", e => { if(e.key==="Enter") attemptLogin(); });
+if(sessionStorage.getItem("adminUnlocked") === "1"){
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("adminApp").style.display = "block";
+  window.addEventListener("DOMContentLoaded", boot);
+}
+
+/* ============================================================
+   토스트
+   ============================================================ */
+let toastTimer=null;
+function flashSaved(msg){
+  const t = document.getElementById("savedtoast");
+  if(msg) t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove("show"), 1800);
+}
+
+/* ============================================================
+   데이터 로드 (서버 fetch → 실패 시 파일선택 폴백)
+   ============================================================ */
+async function fetchFromServer(){
+  const res = await fetch("./data.json", {cache:"no-store"});
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return await res.json();
+}
+
+document.getElementById("loadFileInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try{
+      DATA = JSON.parse(ev.target.result);
+      renderAll();
+      flashSaved("✓ 파일에서 불러옴");
+    }catch(err){ alert("JSON 파일을 읽지 못했어요: " + err.message); }
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("refetchBtn").addEventListener("click", async () => {
+  try{ DATA = await fetchFromServer(); renderAll(); flashSaved("✓ 서버에서 새로 불러옴"); }
+  catch(e){ alert("서버에서 불러오지 못했어요. 아래 '📂 data.json 불러오기'로 최근 다운로드한 파일을 선택해주세요."); }
+});
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  DATA.updatedAt = new Date().toISOString();
+  DATA.budgetTotal = Number(document.getElementById("budgetInput").value) || 0;
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "data.json";
+  a.click();
+  flashSaved("✓ 다운로드됨 — 깃허브에 업로드해서 덮어써주세요");
+});
+
+async function boot(){
+  try{
+    DATA = await fetchFromServer();
+  }catch(e){
+    console.warn("서버에서 못 불러옴 — 파일 선택으로 불러와주세요", e);
+    document.getElementById("main").innerHTML = `<div style="padding:40px 20px; text-align:center; color:var(--ink-soft); font-size:13px; line-height:1.8;">
+      서버에서 data.json을 자동으로 불러오지 못했어요.<br>
+      (파일을 직접 더블클릭해서 열었을 경우 흔히 발생해요)<br><br>
+      위 <b>📂 data.json 불러오기</b> 버튼으로 최근 다운로드해둔 data.json을 선택해주세요.<br>
+      처음 시작이라면 깃허브에 올린 data.json을 다운로드해서 선택하시면 돼요.
+    </div>`;
+    return;
+  }
+  document.getElementById("budgetInput").value = DATA.budgetTotal || 0;
+  renderAll();
+}
+
+/* ============================================================
+   렌더링
+   ============================================================ */
+function suggestImgPath(id){ return "img/" + id + ".jpg"; }
+
+function buildCard(item, dayIdx, itemIdx){
+  if(item.type === "transit"){
+    return `<div class="card transit"><div class="transit-row">
+      <span class="t-time">${item.time}</span><span>${item.title}</span><span class="t-note">${item.note||""}</span>
+    </div></div>`;
+  }
+  const path = `${dayIdx}.${itemIdx}`;
+  const menuField = item.cat === "식사" ? `
+    <div class="field"><label>추천메뉴 / 특징</label>
+      <textarea data-path="${path}" data-field="menu" oninput="onField(this)">${item.menu||""}</textarea>
+    </div>` : "";
+
+  return `
+  <div class="card" data-path="${path}">
+    <div class="card-top">
+      <div class="row1">
+        <span class="cat ${item.cat}">${CAT_ICON[item.cat]||""} ${item.cat}</span>
+        <input type="text" class="time-input" value="${item.time||""}" data-path="${path}" data-field="time" oninput="onField(this)">
+        <select class="status-select" data-path="${path}" data-field="status" onchange="onField(this)">
+          <option value="confirmed" ${item.status==="confirmed"?"selected":""}>확정</option>
+          <option value="pending" ${item.status==="pending"?"selected":""}>미정</option>
+          <option value="" ${!item.status?"selected":""}>—</option>
+        </select>
+      </div>
+      <input type="text" class="title-input" value="${item.title||""}" data-path="${path}" data-field="title" oninput="onField(this)">
+      <input type="text" class="place-input" value="${item.place||""}" placeholder="장소/위치" data-path="${path}" data-field="place" oninput="onField(this)">
+    </div>
+
+    <div class="photo-wrap" data-role="photo-wrap-${path}">
+      ${item.imgPath ? `<img src="${item.imgPath}" onerror="this.style.display='none';">` : `<div class="photo-placeholder"><span class="emoji">${CAT_ICON[item.cat]||"📷"}</span><span>경로를 입력하면 미리보기가 시도돼요</span></div>`}
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <label>사진 경로 (깃허브 img 폴더 기준)</label>
+        <div class="imgpath-row">
+          <input type="text" value="${item.imgPath||""}" placeholder="img/001.jpg" data-path="${path}" data-field="imgPath" oninput="onField(this); refreshPhotoPreview('${path}', this.value)">
+          <button type="button" class="suggest-btn" onclick="fillSuggested('${path}','${suggestImgPath(item.id)}')">추천경로</button>
+        </div>
+        <div class="photo-note">
+          ⚠️ 실제로 보이려면 이 이름의 이미지 파일을 깃허브 저장소의 <b>img/</b> 폴더에 직접 올려야 해요.<br>
+          아래는 지금 이 파일이 어떻게 보일지 <b>내 화면에서만</b> 미리 확인하는 용도예요(저장 안 됨).
+        </div>
+        <div class="photo-local-preview">
+          <input type="file" accept="image/*" onchange="previewLocal(this, '${path}')">
+        </div>
+      </div>
+
+      <div class="field mono">
+        <label>예산</label>
+        <input type="text" value="${item.price||""}" placeholder="예: 3,000엔 (2인)" data-path="${path}" data-field="price" oninput="onField(this)">
+      </div>
+      <div class="field mono">
+        <label>실제 사용액 (2인, 엔화)</label>
+        <input type="number" inputmode="numeric" value="${item.actual||""}" placeholder="예: 1500" data-path="${path}" data-field="actual" oninput="onField(this); computeSummary();">
+      </div>
+      ${menuField}
+      <div class="field mono">
+        <label>전화번호</label>
+        <input type="text" value="${item.phone||""}" placeholder="010-0000-0000" data-path="${path}" data-field="phone" oninput="onField(this)">
+      </div>
+      <div class="field">
+        <label>구글맵 검색어 / 주소</label>
+        <input type="text" value="${item.mapsQ||""}" placeholder="장소명 또는 주소" data-path="${path}" data-field="mapsQ" oninput="onField(this)">
+      </div>
+      <hr class="perf">
+      <div class="field">
+        <label>메모</label>
+        <textarea data-path="${path}" data-field="note" oninput="onField(this)">${item.note||""}</textarea>
+      </div>
+    </div>
+  </div>`;
+}
+
+function onField(el){
+  const [di, ii] = el.dataset.path.split(".").map(Number);
+  DATA.days[di].items[ii][el.dataset.field] = el.value;
+}
+
+function fillSuggested(path, suggested){
+  const input = document.querySelector(`input[data-path="${path}"][data-field="imgPath"]`);
+  input.value = suggested;
+  onField(input);
+}
+
+function previewLocal(fileInput, path){
+  const file = fileInput.files[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  const wrap = document.querySelector(`[data-role="photo-wrap-${path}"]`);
+  wrap.innerHTML = `<img src="${url}">`;
+}
+
+function refreshPhotoPreview(path, imgPath){
+  const wrap = document.querySelector(`[data-role="photo-wrap-${path}"]`);
+  if(!imgPath){
+    wrap.innerHTML = `<div class="photo-placeholder"><span class="emoji">📷</span><span>경로를 입력하면 미리보기가 시도돼요</span></div>`;
+    return;
+  }
+  wrap.innerHTML = `<img src="${imgPath}" onerror="this.parentElement.innerHTML='<div class=photo-placeholder><span class=emoji>⚠️</span><span>아직 이 경로에 파일이 없어요(정상 — 깃허브 업로드 전)</span></div>';">`;
+}
+
+function computeSummary(){
+  let sum = 0;
+  DATA.days.forEach(day => day.items.forEach(item => {
+    const v = parseFloat(item.actual);
+    if(!isNaN(v)) sum += v;
+  }));
+  (DATA.ledger||[]).forEach(e => { const v = Number(e.amount); if(!isNaN(v)) sum += v; });
+  document.getElementById("actualTotal").textContent = yen(sum);
+}
+
+function renderLedgerEditor(){
+  const total = (DATA.ledger||[]).reduce((s,e)=>s+(Number(e.amount)||0),0);
+  const items = (DATA.ledger||[]).length
+    ? DATA.ledger.map((e,idx) => `<div class="ledger-item"><span class="li-name">${e.name}</span><span class="li-amt">${yen(e.amount)}</span><button class="li-del" onclick="delLedger(${idx})">✕</button></div>`).join("")
+    : `<div class="ledger-empty">항목이 없어요.</div>`;
+  return `
+  <section id="ledger-section">
+    <div class="daymarker">
+      <div class="stamp" style="border-color:var(--vermillion); color:var(--vermillion);"><span class="num" style="font-size:20px;">💰</span></div>
+      <div class="theme">간이 가계부<small>계획에 없던 지출 관리</small></div>
+    </div>
+    <div class="ledger-editor">
+      <div class="ledger-card">
+        <div class="ledger-total"><span class="lbl">합계 (엔화)</span><span class="amt mono">${yen(total)}</span></div>
+        <div class="ledger-add">
+          <input type="text" class="li-name" id="ledgerNameInput" placeholder="항목명">
+          <input type="number" inputmode="numeric" class="li-amt" id="ledgerAmtInput" placeholder="금액(¥)">
+          <button onclick="addLedger()">추가</button>
+        </div>
+        <div id="ledgerList">${items}</div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function addLedger(){
+  const nameInput = document.getElementById("ledgerNameInput");
+  const amtInput = document.getElementById("ledgerAmtInput");
+  const name = nameInput.value.trim();
+  const amount = parseFloat(amtInput.value);
+  if(!name || isNaN(amount)) return;
+  if(!DATA.ledger) DATA.ledger = [];
+  DATA.ledger.push({name, amount});
+  nameInput.value=""; amtInput.value="";
+  renderAll();
+  flashSaved();
+}
+function delLedger(idx){
+  DATA.ledger.splice(idx,1);
+  renderAll();
+  flashSaved();
+}
+
+function renderAll(){
+  const main = document.getElementById("main");
+  const nav = document.getElementById("daynav");
+  main.innerHTML = "";
+  nav.innerHTML = "";
+
+  DATA.days.forEach((day, di) => {
+    const chip = document.createElement("div");
+    chip.className = "daychip";
+    chip.textContent = day.d + " " + day.w;
+    chip.onclick = () => document.getElementById("day-"+di).scrollIntoView({behavior:"smooth", block:"start"});
+    nav.appendChild(chip);
+
+    const section = document.createElement("section");
+    section.id = "day-"+di;
+    section.innerHTML = `
+      <div class="daymarker">
+        <div class="stamp"><span class="num">${day.d}</span><span class="dow">${day.w}요일</span></div>
+        <div class="theme">${day.theme}<small>${day.sub}</small></div>
+      </div>
+      <div class="cards">${day.items.map((it,ii)=>buildCard(it,di,ii)).join("")}</div>
+    `;
+    main.appendChild(section);
+  });
+
+  const ledgerChip = document.createElement("div");
+  ledgerChip.className = "daychip";
+  ledgerChip.style.borderColor = "var(--vermillion)";
+  ledgerChip.style.color = "var(--vermillion)";
+  ledgerChip.textContent = "💰 가계부";
+  ledgerChip.onclick = () => document.getElementById("ledger-section").scrollIntoView({behavior:"smooth", block:"start"});
+  nav.appendChild(ledgerChip);
+
+  const holder = document.createElement("div");
+  holder.innerHTML = renderLedgerEditor();
+  main.appendChild(holder);
+
+  computeSummary();
+}
+</script>
+</body>
+</html>
