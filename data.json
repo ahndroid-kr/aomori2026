@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-29T12:00:04.469Z",
+  "updatedAt": "2026-07-29T13:58:37.957Z",
   "budgetTotal": 3272055,
   "days": [
     {
@@ -32,9 +32,9 @@
           "price": "41,030엔 (2인, 기본+CDW+NOC)",
           "menu": "",
           "phone": "",
-          "mapsQ": "アオモリ空港 レンタカーカウンター",
+          "mapsQ": "ニッポンレンタカー 青森空港 営業所",
           "note": "예약번호 RC72461246535486149 / 확인키 iIPBi63F · 착륙 11:35→픽업 12:00 약 25분",
-          "imgPath": "",
+          "imgPath": "img/rentcar.jpg",
           "actual": ""
         },
         {
@@ -49,7 +49,7 @@
           "phone": "",
           "mapsQ": "青森市 ランチ",
           "note": "",
-          "imgPath": "",
+          "imgPath": "img/nokkedon.jpg",
           "actual": ""
         },
         {
@@ -61,10 +61,10 @@
           "place": "ねぶたの家 ワ・ラッセ",
           "price": "620엔 (성인 1인)",
           "menu": "네부타 축제 전시·영상",
-          "phone": "",
+          "phone": "+81177521311",
           "mapsQ": "ねぶたの家 ワ・ラッセ",
           "note": "",
-          "imgPath": "",
+          "imgPath": "img/nebuta.jpg",
           "actual": ""
         },
         {
@@ -73,7 +73,7 @@
           "time": "저녁",
           "status": "pending",
           "title": "저녁 이자카야",
-          "place": "미정 — 미쓰이시 예약 취소됨",
+          "place": "미정",
           "price": "3,000엔 (1인 예상)",
           "menu": "후보: 이도바타 / 니노스케 / 스시이자카야 타루(전화예약만)",
           "phone": "",
