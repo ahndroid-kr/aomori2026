@@ -139,3 +139,6 @@ header{
 .btn:active{ transform:scale(0.97); }
 
 footer{ margin:34px 16px 10px; text-align:center; font-size:10.5px; color:#a89f89; font-family:'IBM Plex Mono',monospace; line-height:1.7; }
+
+/* ===== Tabs (날짜별 완전 분리 뷰) ===== */
+.tabpanel.hidden{ display:none; }

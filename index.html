@@ -75,10 +75,6 @@ function buildCard(item){
   const statusHtml = item.status ? `<span class="status ${item.status}">${item.status==="confirmed"?"확정":"미정"}</span>` : "";
   const mapsBtn = item.mapsQ ? `<a class="btn maps" href="${mapsUrl(item.mapsQ)}" target="_blank" rel="noopener">📍 지도</a>` : "";
   const telBtn = item.phone ? `<a class="btn tel" href="tel:${escapeHtml(item.phone).replace(/[^0-9+]/g,'')}">☎ 전화</a>` : "";
-  const photoHtml = item.imgPath
-    ? `<img src="${escapeHtml(item.imgPath)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-       <div class="photo-placeholder" style="display:none;"><span class="emoji">🖼</span><span>이미지를 불러올 수 없어요</span></div>`
-    : `<div class="photo-placeholder"><span class="emoji">${CAT_ICON[item.cat]||"📷"}</span><span>사진 없음</span></div>`;
 
   const menuField = (item.cat === "식사") ? fieldRow("추천메뉴 / 특징", item.menu) : "";
 
@@ -93,7 +89,6 @@ function buildCard(item){
       <div class="title">${escapeHtml(item.title)}</div>
       ${item.place ? `<div class="place">${escapeHtml(item.place)}</div>` : ""}
     </div>
-    <div class="photo-wrap">${photoHtml}</div>
     <div class="field-grid">
       ${fieldRow("예산", item.price, true)}
       ${fieldRow("실제 사용액 (2인, 엔화)", item.actual ? yen(item.actual) : "", true)}
@@ -131,7 +126,6 @@ function renderLedgerSection(){
     ? DATA.ledger.map(e => `<div class="ledger-item"><span class="li-name">${escapeHtml(e.name)}</span><span class="li-amt">${yen(e.amount)}</span></div>`).join("")
     : `<div class="ledger-empty">기록된 지출이 없어요.</div>`;
   return `
-  <section>
     <div class="daymarker">
       <div class="stamp" style="border-color:var(--vermillion); color:var(--vermillion);"><span class="num" style="font-size:20px;">💰</span></div>
       <div class="theme">간이 가계부<small>계획에 없던 지출 기록</small></div>
@@ -141,8 +135,7 @@ function renderLedgerSection(){
         <div class="ledger-total"><span class="lbl">가계부 합계 (엔화)</span><span class="amt mono">${yen(total)}</span></div>
         ${items}
       </div>
-    </div>
-  </section>`;
+    </div>`;
 }
 
 function render(){
@@ -151,15 +144,20 @@ function render(){
   main.innerHTML = "";
   nav.innerHTML = "";
 
+  const tabIds = [];
+
   DATA.days.forEach((day, i) => {
+    const tabId = "tab-day-"+i;
+    tabIds.push(tabId);
     const chip = document.createElement("div");
     chip.className = "daychip" + (i===0?" active":"");
     chip.textContent = day.d + " " + day.w;
-    chip.onclick = () => document.getElementById("day-"+i).scrollIntoView({behavior:"smooth", block:"start"});
+    chip.onclick = () => showTab(tabId);
     nav.appendChild(chip);
 
     const section = document.createElement("section");
-    section.id = "day-"+i;
+    section.id = tabId;
+    section.className = "tabpanel" + (i===0 ? "" : " hidden");
     section.innerHTML = `
       <div class="daymarker">
         <div class="stamp"><span class="num">${day.d}</span><span class="dow">${day.w}요일</span></div>
@@ -170,28 +168,29 @@ function render(){
     main.appendChild(section);
   });
 
+  const ledgerTabId = "tab-ledger";
+  tabIds.push(ledgerTabId);
   const ledgerChip = document.createElement("div");
   ledgerChip.className = "daychip";
   ledgerChip.style.borderColor = "var(--vermillion)";
   ledgerChip.style.color = "var(--vermillion)";
   ledgerChip.textContent = "💰 가계부";
-  ledgerChip.onclick = () => document.getElementById("ledger-section").scrollIntoView({behavior:"smooth", block:"start"});
+  ledgerChip.onclick = () => showTab(ledgerTabId);
   nav.appendChild(ledgerChip);
 
   const ledgerHolder = document.createElement("div");
-  ledgerHolder.id = "ledger-section";
+  ledgerHolder.id = ledgerTabId;
+  ledgerHolder.className = "tabpanel hidden";
   ledgerHolder.innerHTML = renderLedgerSection();
   main.appendChild(ledgerHolder);
 
-  computeSummary();
+  function showTab(tabId){
+    tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));
+    Array.from(nav.children).forEach((chip, idx) => chip.classList.toggle("active", tabIds[idx] === tabId));
+    window.scrollTo({top:0, behavior:"instant"});
+  }
 
-  window.addEventListener("scroll", () => {
-    const chips = document.querySelectorAll(".daychip");
-    const sections = Array.from(document.querySelectorAll("section[id^='day-']"));
-    let activeIdx = 0;
-    sections.forEach((sec, i) => { if(sec.getBoundingClientRect().top - 140 <= 0) activeIdx = i; });
-    chips.forEach((c,i)=> c.classList.toggle("active", i===activeIdx));
-  }, {passive:true});
+  computeSummary();
 }
 
 async function init(){

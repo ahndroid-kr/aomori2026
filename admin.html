@@ -73,12 +73,7 @@
     border:1px solid var(--line); border-radius:999px; padding:3px 8px; background:#fff;
   }
 
-  .imgpath-row{ display:flex; gap:6px; align-items:center; }
-  .imgpath-row input{ flex:1; }
-  .suggest-btn{ flex:0 0 auto; font-size:10.5px; padding:6px 8px; border-radius:7px; border:1px solid var(--line); background:var(--card-bg); cursor:pointer; }
-  .photo-note{ font-size:10.5px; color:#a89f89; margin-top:2px; line-height:1.5; }
-  .photo-local-preview{ margin-top:6px; }
-  .photo-local-preview input[type=file]{ font-size:11px; }
+  .newcard-btn{ margin:0 16px 20px; }
 
   .ledger-editor{ padding:0 16px 40px; }
   .ledger-card{ background:var(--card-bg); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:16px 14px; }
@@ -97,7 +92,6 @@
   .ledger-item .li-del{ background:none; border:none; color:#b8ac8f; font-size:16px; cursor:pointer; }
   .ledger-empty{ text-align:center; color:#a89f89; font-size:12px; padding:14px 0; }
 
-  .newcard-btn{ margin:0 16px 20px; }
   .budgetfield{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--paper); }
   .budgetfield input{ width:110px; font-family:'IBM Plex Mono',monospace; font-size:12px; border:none; border-radius:6px; padding:4px 6px; }
 </style>
@@ -240,8 +234,6 @@ async function boot(){
 /* ============================================================
    렌더링
    ============================================================ */
-function suggestImgPath(id){ return "img/" + id + ".jpg"; }
-
 function buildCard(item, dayIdx, itemIdx){
   if(item.type === "transit"){
     return `<div class="card transit"><div class="transit-row">
@@ -270,25 +262,7 @@ function buildCard(item, dayIdx, itemIdx){
       <input type="text" class="place-input" value="${item.place||""}" placeholder="장소/위치" data-path="${path}" data-field="place" oninput="onField(this)">
     </div>
 
-    <div class="photo-wrap" data-role="photo-wrap-${path}">
-      ${item.imgPath ? `<img src="${item.imgPath}" onerror="this.style.display='none';">` : `<div class="photo-placeholder"><span class="emoji">${CAT_ICON[item.cat]||"📷"}</span><span>경로를 입력하면 미리보기가 시도돼요</span></div>`}
-    </div>
     <div class="field-grid">
-      <div class="field">
-        <label>사진 경로 (깃허브 img 폴더 기준)</label>
-        <div class="imgpath-row">
-          <input type="text" value="${item.imgPath||""}" placeholder="img/001.jpg" data-path="${path}" data-field="imgPath" oninput="onField(this); refreshPhotoPreview('${path}', this.value)">
-          <button type="button" class="suggest-btn" onclick="fillSuggested('${path}','${suggestImgPath(item.id)}')">추천경로</button>
-        </div>
-        <div class="photo-note">
-          ⚠️ 실제로 보이려면 이 이름의 이미지 파일을 깃허브 저장소의 <b>img/</b> 폴더에 직접 올려야 해요.<br>
-          아래는 지금 이 파일이 어떻게 보일지 <b>내 화면에서만</b> 미리 확인하는 용도예요(저장 안 됨).
-        </div>
-        <div class="photo-local-preview">
-          <input type="file" accept="image/*" onchange="previewLocal(this, '${path}')">
-        </div>
-      </div>
-
       <div class="field mono">
         <label>예산</label>
         <input type="text" value="${item.price||""}" placeholder="예: 3,000엔 (2인)" data-path="${path}" data-field="price" oninput="onField(this)">
@@ -320,29 +294,6 @@ function onField(el){
   DATA.days[di].items[ii][el.dataset.field] = el.value;
 }
 
-function fillSuggested(path, suggested){
-  const input = document.querySelector(`input[data-path="${path}"][data-field="imgPath"]`);
-  input.value = suggested;
-  onField(input);
-}
-
-function previewLocal(fileInput, path){
-  const file = fileInput.files[0];
-  if(!file) return;
-  const url = URL.createObjectURL(file);
-  const wrap = document.querySelector(`[data-role="photo-wrap-${path}"]`);
-  wrap.innerHTML = `<img src="${url}">`;
-}
-
-function refreshPhotoPreview(path, imgPath){
-  const wrap = document.querySelector(`[data-role="photo-wrap-${path}"]`);
-  if(!imgPath){
-    wrap.innerHTML = `<div class="photo-placeholder"><span class="emoji">📷</span><span>경로를 입력하면 미리보기가 시도돼요</span></div>`;
-    return;
-  }
-  wrap.innerHTML = `<img src="${imgPath}" onerror="this.parentElement.innerHTML='<div class=photo-placeholder><span class=emoji>⚠️</span><span>아직 이 경로에 파일이 없어요(정상 — 깃허브 업로드 전)</span></div>';">`;
-}
-
 function computeSummary(){
   let sum = 0;
   DATA.days.forEach(day => day.items.forEach(item => {
@@ -359,7 +310,6 @@ function renderLedgerEditor(){
     ? DATA.ledger.map((e,idx) => `<div class="ledger-item"><span class="li-name">${e.name}</span><span class="li-amt">${yen(e.amount)}</span><button class="li-del" onclick="delLedger(${idx})">✕</button></div>`).join("")
     : `<div class="ledger-empty">항목이 없어요.</div>`;
   return `
-  <section id="ledger-section">
     <div class="daymarker">
       <div class="stamp" style="border-color:var(--vermillion); color:var(--vermillion);"><span class="num" style="font-size:20px;">💰</span></div>
       <div class="theme">간이 가계부<small>계획에 없던 지출 관리</small></div>
@@ -374,8 +324,7 @@ function renderLedgerEditor(){
         </div>
         <div id="ledgerList">${items}</div>
       </div>
-    </div>
-  </section>`;
+    </div>`;
 }
 
 function addLedger(){
@@ -402,15 +351,20 @@ function renderAll(){
   main.innerHTML = "";
   nav.innerHTML = "";
 
+  const tabIds = [];
+
   DATA.days.forEach((day, di) => {
+    const tabId = "tab-day-"+di;
+    tabIds.push(tabId);
     const chip = document.createElement("div");
-    chip.className = "daychip";
+    chip.className = "daychip" + (di===0 ? " active" : "");
     chip.textContent = day.d + " " + day.w;
-    chip.onclick = () => document.getElementById("day-"+di).scrollIntoView({behavior:"smooth", block:"start"});
+    chip.onclick = () => showTab(tabId);
     nav.appendChild(chip);
 
     const section = document.createElement("section");
-    section.id = "day-"+di;
+    section.id = tabId;
+    section.className = "tabpanel" + (di===0 ? "" : " hidden");
     section.innerHTML = `
       <div class="daymarker">
         <div class="stamp"><span class="num">${day.d}</span><span class="dow">${day.w}요일</span></div>
@@ -421,17 +375,27 @@ function renderAll(){
     main.appendChild(section);
   });
 
+  const ledgerTabId = "tab-ledger";
+  tabIds.push(ledgerTabId);
   const ledgerChip = document.createElement("div");
   ledgerChip.className = "daychip";
   ledgerChip.style.borderColor = "var(--vermillion)";
   ledgerChip.style.color = "var(--vermillion)";
   ledgerChip.textContent = "💰 가계부";
-  ledgerChip.onclick = () => document.getElementById("ledger-section").scrollIntoView({behavior:"smooth", block:"start"});
+  ledgerChip.onclick = () => showTab(ledgerTabId);
   nav.appendChild(ledgerChip);
 
   const holder = document.createElement("div");
+  holder.id = ledgerTabId;
+  holder.className = "tabpanel hidden";
   holder.innerHTML = renderLedgerEditor();
   main.appendChild(holder);
+
+  function showTab(tabId){
+    tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));
+    Array.from(nav.children).forEach((chip, idx) => chip.classList.toggle("active", tabIds[idx] === tabId));
+    window.scrollTo({top:0, behavior:"instant"});
+  }
 
   computeSummary();
 }
