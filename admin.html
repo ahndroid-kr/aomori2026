@@ -69,6 +69,12 @@
     font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--indigo); font-weight:600;
     border:none; border-bottom:1px dashed var(--indigo); background:transparent; width:74px; padding:0;
   }
+  .transit-mapsq{ padding:0 4px 6px 0; }
+  .transit-mapsq input{
+    font-family:'Pretendard',sans-serif; font-size:11px; color:var(--ink-soft); width:100%;
+    border:none; border-bottom:1px dashed var(--line); background:transparent; padding:2px 0; outline:none;
+  }
+  .transit-mapsq input:focus{ border-bottom-color:var(--indigo); color:var(--ink); }
   .status-select{
     font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; margin-left:auto;
     border:1px solid var(--line); border-radius:999px; padding:3px 8px; background:#fff;
@@ -236,9 +242,15 @@ async function boot(){
    ============================================================ */
 function buildCard(item, dayIdx, itemIdx){
   if(item.type === "transit"){
-    return `<div class="card transit"><div class="transit-row">
-      <span class="t-time">${item.time}</span><span>${item.title}</span><span class="t-note">${item.note||""}</span>
-    </div></div>`;
+    const path = `${dayIdx}.${itemIdx}`;
+    return `<div class="card transit" data-path="${path}">
+      <div class="transit-row">
+        <span class="t-time">${item.time}</span><span>${item.title}</span><span class="t-note">${item.note||""}</span>
+      </div>
+      <div class="transit-mapsq">
+        <input type="text" value="${item.mapsQ||""}" placeholder="지도에 표시할 위치(선택)" data-path="${path}" data-field="mapsQ" oninput="onField(this)" onblur="refreshMapForField(this)">
+      </div>
+    </div>`;
   }
   const path = `${dayIdx}.${itemIdx}`;
   const menuField = item.cat === "식사" ? `
