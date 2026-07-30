@@ -11,7 +11,7 @@
    4. 키 제한 설정 권장: HTTP 리퍼러 제한을 본인의 깃허브 페이지 주소로 지정
       (예: https://본인계정.github.io/*)
    5. 아래에 붙여넣기 */
-const GOOGLE_MAPS_API_KEY = "PASTE_YOUR_GOOGLE_MAPS_API_KEY_HERE";
+const GOOGLE_MAPS_API_KEY = "AIzaSyCzHPdcvkMJOjmieetYDQfoZOPPO4vPuk8";
 
 function isMapsConfigured(){
   return GOOGLE_MAPS_API_KEY && !GOOGLE_MAPS_API_KEY.startsWith("PASTE_");
