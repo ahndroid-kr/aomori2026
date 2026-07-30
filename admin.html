@@ -9,6 +9,7 @@
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" />
 <link rel="stylesheet" href="style.css">
+<script src="maps-helper.js"></script>
 <style>
   /* ===== 로그인 화면 ===== */
   #loginScreen{
@@ -277,7 +278,7 @@ function buildCard(item, dayIdx, itemIdx){
       </div>
       <div class="field">
         <label>구글맵 검색어 / 주소</label>
-        <input type="text" value="${item.mapsQ||""}" placeholder="장소명 또는 주소" data-path="${path}" data-field="mapsQ" oninput="onField(this)">
+        <input type="text" value="${item.mapsQ||""}" placeholder="장소명 또는 주소" data-path="${path}" data-field="mapsQ" oninput="onField(this)" onblur="refreshMapForField(this)">
       </div>
       <hr class="perf">
       <div class="field">
@@ -291,6 +292,14 @@ function buildCard(item, dayIdx, itemIdx){
 function onField(el){
   const [di, ii] = el.dataset.path.split(".").map(Number);
   DATA.days[di].items[ii][el.dataset.field] = el.value;
+}
+
+function refreshMapForField(el){
+  if(el.dataset.field !== "mapsQ" || !window.__currentTabId) return;
+  const [di] = el.dataset.path.split(".").map(Number);
+  const containerId = "map-" + window.__currentTabId;
+  delete _dayMapRendered[containerId];
+  renderDayMap(containerId, DATA.days[di].items);
 }
 
 function computeSummary(){
@@ -369,6 +378,7 @@ function renderAll(){
         <div class="stamp"><span class="num">${day.d}</span><span class="dow">${day.w}요일</span></div>
         <div class="theme">${day.theme}<small>${day.sub}</small></div>
       </div>
+      <div class="map-wrap" id="map-${tabId}"><div class="map-placeholder">지도 준비 중...</div></div>
       <div class="cards">${day.items.map((it,ii)=>buildCard(it,di,ii)).join("")}</div>
     `;
     main.appendChild(section);
@@ -394,9 +404,17 @@ function renderAll(){
     tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));
     Array.from(nav.children).forEach((chip, idx) => chip.classList.toggle("active", tabIds[idx] === tabId));
     window.scrollTo({top:0, behavior:"instant"});
+    window.__currentTabId = tabId;
+    window.__currentTabIds = tabIds;
+    const dayIdx = tabIds.indexOf(tabId);
+    if(dayIdx >= 0 && dayIdx < DATA.days.length){
+      renderDayMap("map-"+tabId, DATA.days[dayIdx].items);
+    }
   }
+  window.__showTab = showTab;
 
   computeSummary();
+  if(DATA.days.length) showTab(tabIds[0]);
 }
 </script>
 </body>

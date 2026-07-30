@@ -140,5 +140,15 @@ header{
 
 footer{ margin:34px 16px 10px; text-align:center; font-size:10.5px; color:#a89f89; font-family:'IBM Plex Mono',monospace; line-height:1.7; }
 
+/* ===== 날짜별 지도 ===== */
+.map-wrap{
+  margin:0 16px 18px; height:220px; border-radius:14px; overflow:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow); background:var(--card-bg);
+}
+.map-placeholder{
+  height:100%; display:flex; align-items:center; justify-content:center; text-align:center;
+  color:var(--ink-soft); font-size:12px; padding:16px; line-height:1.6;
+}
+
 /* ===== Tabs (날짜별 완전 분리 뷰) ===== */
 .tabpanel.hidden{ display:none; }

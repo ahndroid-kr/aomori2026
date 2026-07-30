@@ -9,6 +9,7 @@
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" />
 <link rel="stylesheet" href="style.css">
+<script src="maps-helper.js"></script>
 <style>
   .ledger-wrap{ padding:0 16px 40px; }
   .ledger-card{ background:var(--card-bg); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:16px 14px; }
@@ -163,6 +164,7 @@ function render(){
         <div class="stamp"><span class="num">${day.d}</span><span class="dow">${day.w}요일</span></div>
         <div class="theme">${escapeHtml(day.theme)}<small>${escapeHtml(day.sub)}</small></div>
       </div>
+      <div class="map-wrap" id="map-${tabId}"><div class="map-placeholder">지도 준비 중...</div></div>
       <div class="cards">${day.items.map(buildCard).join("")}</div>
     `;
     main.appendChild(section);
@@ -188,9 +190,14 @@ function render(){
     tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));
     Array.from(nav.children).forEach((chip, idx) => chip.classList.toggle("active", tabIds[idx] === tabId));
     window.scrollTo({top:0, behavior:"instant"});
+    const dayIdx = tabIds.indexOf(tabId);
+    if(dayIdx >= 0 && dayIdx < DATA.days.length){
+      renderDayMap("map-"+tabId, DATA.days[dayIdx].items);
+    }
   }
 
   computeSummary();
+  if(DATA.days.length) showTab(tabIds[0]);
 }
 
 async function init(){
