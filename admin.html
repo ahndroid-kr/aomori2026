@@ -109,7 +109,9 @@
   }
   .rest-card.confirmed{ background:var(--teal-soft); border-color:var(--teal); }
   .rest-edit-row{ display:flex; gap:6px; align-items:center; }
-  .rest-edit-row input{ flex:1; font-size:12.5px; border:1px solid var(--line); border-radius:6px; padding:6px 8px; background:#fff; }
+  .rest-edit-row input{ flex:1; min-width:0; font-size:12.5px; border:1px solid var(--line); border-radius:6px; padding:6px 8px; background:#fff; }
+  .rest-edit-row input[data-rfield="budget"]{ flex:0.8; }
+  .rest-edit-row input[data-rfield="mapsQ"]{ flex:1.5; }
   .rest-edit-menu{ width:100%; font-size:12px; border:1px solid var(--line); border-radius:6px; padding:6px 8px; background:#fff; }
   .rest-confirm{ display:flex; align-items:center; gap:4px; font-size:11px; white-space:nowrap; color:var(--teal); font-weight:600; }
   .rest-edit-row .li-del{ flex:0 0 auto; background:none; border:1px solid var(--vermillion); color:var(--vermillion); border-radius:6px; padding:6px 10px; font-size:11px; cursor:pointer; }
@@ -422,8 +424,8 @@ function renderRestaurantEditor(){
           <input type="text" id="restNameInput" placeholder="이름" style="margin-bottom:6px;">
           <input type="text" id="restMenuInput" placeholder="대표메뉴" style="margin-bottom:6px;">
           <div style="display:flex; gap:6px;">
-            <input type="text" id="restBudgetInput" placeholder="예산(1인)" style="flex:1;">
-            <input type="text" id="restMapsQInput" placeholder="지도 검색어" style="flex:1;">
+            <input type="text" id="restBudgetInput" placeholder="예산(1인)" style="flex:0.8; min-width:0;">
+            <input type="text" id="restMapsQInput" placeholder="지도 검색어" style="flex:1.5; min-width:0;">
           </div>
           <button onclick="addRestaurant()" style="margin-top:8px;">추가</button>
         </div>
@@ -495,6 +497,7 @@ function renderAll(){
   ledgerChip.className = "daychip";
   ledgerChip.style.borderColor = "var(--vermillion)";
   ledgerChip.style.color = "var(--vermillion)";
+  ledgerChip.dataset.tintColor = "var(--vermillion)";
   ledgerChip.textContent = "💰 가계부";
   ledgerChip.onclick = () => showTab(ledgerTabId);
   nav.appendChild(ledgerChip);
@@ -511,6 +514,7 @@ function renderAll(){
   restChip.className = "daychip";
   restChip.style.borderColor = "var(--indigo)";
   restChip.style.color = "var(--indigo)";
+  restChip.dataset.tintColor = "var(--indigo)";
   restChip.textContent = "🍴 맛집";
   restChip.onclick = () => showTab(restTabId);
   nav.appendChild(restChip);
@@ -523,7 +527,11 @@ function renderAll(){
 
   function showTab(tabId){
     tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));
-    Array.from(nav.children).forEach((chip, idx) => chip.classList.toggle("active", tabIds[idx] === tabId));
+    Array.from(nav.children).forEach((chip, idx) => {
+      const isActive = tabIds[idx] === tabId;
+      chip.classList.toggle("active", isActive);
+      if(chip.dataset.tintColor) chip.style.color = isActive ? "#fff" : chip.dataset.tintColor;
+    });
     window.scrollTo({top:0, behavior:"instant"});
     window.__currentTabId = tabId;
     window.__currentTabIds = tabIds;
