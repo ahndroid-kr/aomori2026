@@ -140,6 +140,25 @@ header{
 
 footer{ margin:34px 16px 10px; text-align:center; font-size:10.5px; color:#a89f89; font-family:'IBM Plex Mono',monospace; line-height:1.7; }
 
+/* ===== 맛집 탭 ===== */
+.rest-wrap{ padding:0 16px 40px; }
+.rest-group{ margin-bottom:22px; }
+.rest-group-title{
+  font-family:'Pretendard',sans-serif; font-weight:700; font-size:13px; color:var(--indigo);
+  margin-bottom:8px; padding-bottom:5px; border-bottom:1.5px solid var(--indigo-soft);
+}
+.rest-card{
+  background:var(--card-bg); border:1px solid var(--line); border-radius:11px;
+  padding:12px 14px; margin-bottom:8px;
+}
+.rest-card.confirmed{ background:var(--teal-soft); border-color:var(--teal); }
+.rest-top{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.rest-name{ font-family:'Pretendard',sans-serif; font-weight:700; font-size:14px; color:var(--ink); }
+.rest-menu{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:8px; }
+.rest-bottom{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.rest-budget{ font-size:12px; color:var(--ink-soft); }
+.rest-mapbtn{ flex:0 0 auto; padding:6px 12px; font-size:11.5px; }
+
 /* ===== 날짜별 지도 ===== */
 .map-wrap{
   margin:0 16px 18px; height:220px; border-radius:14px; overflow:hidden;

@@ -146,6 +146,40 @@ function renderLedgerSection(){
     </div>`;
 }
 
+function renderRestaurantSection(){
+  const list = DATA.restaurants || [];
+  const groups = [];
+  list.forEach(r => {
+    let g = groups.find(x => x.name === r.group);
+    if(!g){ g = { name: r.group, items: [] }; groups.push(g); }
+    g.items.push(r);
+  });
+  const groupsHtml = groups.map(g => `
+    <div class="rest-group">
+      <div class="rest-group-title">${escapeHtml(g.name)}</div>
+      ${g.items.map(r => `
+        <div class="rest-card${r.confirmed ? ' confirmed' : ''}">
+          <div class="rest-top">
+            <span class="rest-name">${escapeHtml(r.name)}</span>
+            ${r.confirmed ? '<span class="status confirmed">확정</span>' : ''}
+          </div>
+          ${r.menu ? `<div class="rest-menu">${escapeHtml(r.menu)}</div>` : ""}
+          <div class="rest-bottom">
+            <span class="rest-budget mono">${escapeHtml(r.budget||"")}</span>
+            ${r.mapsQ ? `<a class="btn maps rest-mapbtn" href="${mapsUrl(r.mapsQ)}" target="_blank" rel="noopener">📍 지도</a>` : ""}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+  return `
+    <div class="daymarker">
+      <div class="stamp" style="border-color:var(--indigo); color:var(--indigo);"><span class="num" style="font-size:20px;">🍴</span></div>
+      <div class="theme">맛집 후보<small>날짜·끼니별 빠르게 찾아가기</small></div>
+    </div>
+    <div class="rest-wrap">${groupsHtml || '<div class="ledger-empty">등록된 맛집이 없어요.</div>'}</div>`;
+}
+
 function render(){
   const main = document.getElementById("main");
   const nav = document.getElementById("daynav");
@@ -192,6 +226,22 @@ function render(){
   ledgerHolder.className = "tabpanel hidden";
   ledgerHolder.innerHTML = renderLedgerSection();
   main.appendChild(ledgerHolder);
+
+  const restTabId = "tab-restaurants";
+  tabIds.push(restTabId);
+  const restChip = document.createElement("div");
+  restChip.className = "daychip";
+  restChip.style.borderColor = "var(--indigo)";
+  restChip.style.color = "var(--indigo)";
+  restChip.textContent = "🍴 맛집";
+  restChip.onclick = () => showTab(restTabId);
+  nav.appendChild(restChip);
+
+  const restHolder = document.createElement("div");
+  restHolder.id = restTabId;
+  restHolder.className = "tabpanel hidden";
+  restHolder.innerHTML = renderRestaurantSection();
+  main.appendChild(restHolder);
 
   function showTab(tabId){
     tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));

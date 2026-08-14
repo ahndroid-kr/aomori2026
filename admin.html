@@ -100,6 +100,20 @@
   .ledger-item .li-del{ background:none; border:none; color:#b8ac8f; font-size:16px; cursor:pointer; }
   .ledger-empty{ text-align:center; color:#a89f89; font-size:12px; padding:14px 0; }
 
+  /* ===== 맛집 편집기 ===== */
+  .rest-group{ margin:18px 0; }
+  .rest-group-title{ font-weight:700; font-size:12.5px; color:var(--indigo); margin-bottom:8px; }
+  .rest-card{
+    background:var(--card-bg); border:1px solid var(--line); border-radius:11px;
+    padding:10px 12px; margin-bottom:8px; display:flex; flex-direction:column; gap:6px;
+  }
+  .rest-card.confirmed{ background:var(--teal-soft); border-color:var(--teal); }
+  .rest-edit-row{ display:flex; gap:6px; align-items:center; }
+  .rest-edit-row input{ flex:1; font-size:12.5px; border:1px solid var(--line); border-radius:6px; padding:6px 8px; background:#fff; }
+  .rest-edit-menu{ width:100%; font-size:12px; border:1px solid var(--line); border-radius:6px; padding:6px 8px; background:#fff; }
+  .rest-confirm{ display:flex; align-items:center; gap:4px; font-size:11px; white-space:nowrap; color:var(--teal); font-weight:600; }
+  .rest-edit-row .li-del{ flex:0 0 auto; background:none; border:1px solid var(--vermillion); color:var(--vermillion); border-radius:6px; padding:6px 10px; font-size:11px; cursor:pointer; }
+
   .budgetfield{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--paper); }
   .budgetfield input{ width:110px; font-family:'IBM Plex Mono',monospace; font-size:12px; border:none; border-radius:6px; padding:4px 6px; }
 </style>
@@ -366,6 +380,84 @@ function delLedger(idx){
   flashSaved();
 }
 
+function renderRestaurantEditor(){
+  const list = DATA.restaurants || [];
+  const groups = [];
+  list.forEach((r, idx) => {
+    let g = groups.find(x => x.name === r.group);
+    if(!g){ g = { name: r.group, items: [] }; groups.push(g); }
+    g.items.push({ ...r, idx });
+  });
+  const groupsHtml = groups.map(g => `
+    <div class="rest-group">
+      <div class="rest-group-title">${g.name}</div>
+      ${g.items.map(r => `
+        <div class="rest-card${r.confirmed ? ' confirmed' : ''}" data-ridx="${r.idx}">
+          <div class="rest-edit-row">
+            <input type="text" value="${r.name}" placeholder="이름" data-rfield="name" onchange="onRestField(${r.idx}, this)">
+            <label class="rest-confirm"><input type="checkbox" ${r.confirmed?'checked':''} onchange="onRestField(${r.idx}, this, true)"> 확정</label>
+          </div>
+          <input type="text" value="${r.menu||''}" placeholder="대표메뉴" class="rest-edit-menu" data-rfield="menu" onchange="onRestField(${r.idx}, this)">
+          <div class="rest-edit-row">
+            <input type="text" value="${r.budget||''}" placeholder="예산(1인)" data-rfield="budget" onchange="onRestField(${r.idx}, this)">
+            <input type="text" value="${r.mapsQ||''}" placeholder="지도 검색어" data-rfield="mapsQ" onchange="onRestField(${r.idx}, this)">
+          </div>
+          <div class="rest-edit-row">
+            <input type="text" value="${r.group}" placeholder="분류(예: 8/21 아오모리 점심)" data-rfield="group" onchange="onRestField(${r.idx}, this)">
+            <button class="li-del" onclick="delRestaurant(${r.idx})">✕ 삭제</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+  return `
+    <div class="daymarker">
+      <div class="stamp" style="border-color:var(--indigo); color:var(--indigo);"><span class="num" style="font-size:20px;">🍴</span></div>
+      <div class="theme">맛집 후보<small>날짜·끼니별 후보 관리</small></div>
+    </div>
+    <div class="ledger-editor">
+      <div class="ledger-card">
+        <div class="ledger-add" style="flex-direction:column; align-items:stretch;">
+          <input type="text" id="restGroupInput" placeholder="분류(예: 8/21 아오모리 점심)" style="margin-bottom:6px;">
+          <input type="text" id="restNameInput" placeholder="이름" style="margin-bottom:6px;">
+          <input type="text" id="restMenuInput" placeholder="대표메뉴" style="margin-bottom:6px;">
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="restBudgetInput" placeholder="예산(1인)" style="flex:1;">
+            <input type="text" id="restMapsQInput" placeholder="지도 검색어" style="flex:1;">
+          </div>
+          <button onclick="addRestaurant()" style="margin-top:8px;">추가</button>
+        </div>
+      </div>
+      ${groupsHtml || '<div class="ledger-empty">등록된 맛집이 없어요.</div>'}
+    </div>`;
+}
+
+function onRestField(idx, el, isCheckbox){
+  if(isCheckbox){ DATA.restaurants[idx].confirmed = el.checked; }
+  else { DATA.restaurants[idx][el.dataset.rfield] = el.value; }
+  renderAll();
+  flashSaved();
+}
+
+function addRestaurant(){
+  const group = document.getElementById("restGroupInput").value.trim();
+  const name = document.getElementById("restNameInput").value.trim();
+  const menu = document.getElementById("restMenuInput").value.trim();
+  const budget = document.getElementById("restBudgetInput").value.trim();
+  const mapsQ = document.getElementById("restMapsQInput").value.trim();
+  if(!group || !name) return;
+  if(!DATA.restaurants) DATA.restaurants = [];
+  DATA.restaurants.push({ group, name, menu, budget, mapsQ, confirmed:false });
+  renderAll();
+  flashSaved();
+}
+
+function delRestaurant(idx){
+  DATA.restaurants.splice(idx,1);
+  renderAll();
+  flashSaved();
+}
+
 function renderAll(){
   const main = document.getElementById("main");
   const nav = document.getElementById("daynav");
@@ -412,6 +504,22 @@ function renderAll(){
   holder.className = "tabpanel hidden";
   holder.innerHTML = renderLedgerEditor();
   main.appendChild(holder);
+
+  const restTabId = "tab-restaurants";
+  tabIds.push(restTabId);
+  const restChip = document.createElement("div");
+  restChip.className = "daychip";
+  restChip.style.borderColor = "var(--indigo)";
+  restChip.style.color = "var(--indigo)";
+  restChip.textContent = "🍴 맛집";
+  restChip.onclick = () => showTab(restTabId);
+  nav.appendChild(restChip);
+
+  const restHolder = document.createElement("div");
+  restHolder.id = restTabId;
+  restHolder.className = "tabpanel hidden";
+  restHolder.innerHTML = renderRestaurantEditor();
+  main.appendChild(restHolder);
 
   function showTab(tabId){
     tabIds.forEach(id => document.getElementById(id).classList.toggle("hidden", id !== tabId));

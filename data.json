@@ -611,5 +611,207 @@
       "name": "다자와코 레이크리조트 입탕세 (인당 300엔×2)",
       "amount": 600
     }
+  ],
+  "restaurants": [
+    {
+      "group": "8/21 아오모리 점심",
+      "name": "스테이크 단델리온",
+      "menu": "함박, 안창살 스테이크",
+      "budget": "¥2,700",
+      "mapsQ": "ステーキ タンデラリオン 青森",
+      "confirmed": false
+    },
+    {
+      "group": "8/21 아오모리 점심",
+      "name": "교사이센터",
+      "menu": "놋케동",
+      "budget": "¥3,300",
+      "mapsQ": "青森魚菜センター",
+      "confirmed": false
+    },
+    {
+      "group": "8/21 아오모리 점심",
+      "name": "고반켄",
+      "menu": "오무라이스, 간볶음정식",
+      "budget": "¥1,500",
+      "mapsQ": "五番館 青森",
+      "confirmed": false
+    },
+    {
+      "group": "8/21 아오모리 저녁",
+      "name": "이도바타",
+      "menu": "모츠니코미, 야키토리",
+      "budget": "¥2,000-3,000",
+      "mapsQ": "井戸端 青森",
+      "confirmed": false
+    },
+    {
+      "group": "8/21 아오모리 저녁",
+      "name": "니노스케",
+      "menu": "산과 바다 향토요리",
+      "budget": "¥3,000-4,000",
+      "mapsQ": "弐乃助 青森",
+      "confirmed": false
+    },
+    {
+      "group": "8/21 아오모리 저녁",
+      "name": "스시이자카야 타루",
+      "menu": "오마産 참치·성게",
+      "budget": "",
+      "mapsQ": "すし居酒屋樽 青森",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 도와다호 점심",
+      "name": "도치노차야",
+      "menu": "히메마스 요리",
+      "budget": "¥1,500-2,500",
+      "mapsQ": "とちの茶屋 十和田湖",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 도와다호 점심",
+      "name": "모리타",
+      "menu": "히메마스, 바라야키정식",
+      "budget": "¥1,500-2,500",
+      "mapsQ": "モリタ 十和田湖",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 도와다호 점심",
+      "name": "이와부키",
+      "menu": "히메마스 요리",
+      "budget": "",
+      "mapsQ": "岩ぶき 十和田湖",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 하치노헤 저녁",
+      "name": "반야",
+      "menu": "오반자이+해산물",
+      "budget": "¥4,000-5,000",
+      "mapsQ": "ばんや みろく横丁",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 하치노헤 저녁",
+      "name": "나쓰카시야",
+      "menu": "해산물+호르몬야키",
+      "budget": "¥3,000-4,000",
+      "mapsQ": "懐かし屋 みろく横丁",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 하치노헤 저녁",
+      "name": "우미노사치 우마이",
+      "menu": "희귀 어종",
+      "budget": "¥2,500-3,500",
+      "mapsQ": "海の幸美味 みろく横丁",
+      "confirmed": false
+    },
+    {
+      "group": "8/22 하치노헤 저녁",
+      "name": "浜小家",
+      "menu": "사시미모둠, 호타테미소카이야키, 쿠에나베",
+      "budget": "¥4,000-4,999",
+      "mapsQ": "浜小家 八戸駅",
+      "confirmed": false
+    },
+    {
+      "group": "8/23 다네사시 점심",
+      "name": "시바테이",
+      "menu": "生우니동",
+      "budget": "¥1,500-2,500",
+      "mapsQ": "芝亭 種差海岸",
+      "confirmed": false
+    },
+    {
+      "group": "8/23 다네사시 점심",
+      "name": "고부나토식당",
+      "menu": "이소라멘",
+      "budget": "¥1,200-2,000",
+      "mapsQ": "小舟渡食堂 種差海岸",
+      "confirmed": false
+    },
+    {
+      "group": "8/23 아키타 저녁",
+      "name": "さけ富",
+      "menu": "아키타오뎅+지자케",
+      "budget": "¥6,000-7,999",
+      "mapsQ": "さけ富 秋田市",
+      "confirmed": true
+    },
+    {
+      "group": "8/24 아키타 점심",
+      "name": "사토요스케 토피코점",
+      "menu": "이나니와우동",
+      "budget": "¥1,200-2,000",
+      "mapsQ": "佐藤養助 トピコ店",
+      "confirmed": true
+    },
+    {
+      "group": "8/25 히로사키 점심",
+      "name": "깃사 카미야",
+      "menu": "오무라이스·파스타",
+      "budget": "",
+      "mapsQ": "喫茶神屋 弘前",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 점심",
+      "name": "민파이 조토점",
+      "menu": "유린치정식(마치추카)",
+      "budget": "¥1,200~",
+      "mapsQ": "みんぱい 城東店 弘前",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 점심",
+      "name": "니지노마트 시키하나마루",
+      "menu": "해산물덮밥",
+      "budget": "¥700~",
+      "mapsQ": "虹のマート 弘前駅",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 저녁",
+      "name": "하스야",
+      "menu": "신선 사시미모둠",
+      "budget": "¥8,000선",
+      "mapsQ": "はすや 弘前",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 저녁",
+      "name": "도몬",
+      "menu": "사케 전문",
+      "budget": "¥3,000-5,000",
+      "mapsQ": "土紋 弘前",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 저녁",
+      "name": "시키테이",
+      "menu": "이카멘치",
+      "budget": "¥3,000-4,000",
+      "mapsQ": "四季亭 弘前",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 저녁",
+      "name": "스시사카바 시모야마",
+      "menu": "니기리",
+      "budget": "¥3,000-4,000",
+      "mapsQ": "寿司酒場しもやま 弘前",
+      "confirmed": false
+    },
+    {
+      "group": "8/25 히로사키 저녁",
+      "name": "도데노메헤얏코",
+      "menu": "스지코낫토밥, 이가멘치",
+      "budget": "",
+      "mapsQ": "ドデノメヘヤッコ 弘前",
+      "confirmed": false
+    }
   ]
 }
